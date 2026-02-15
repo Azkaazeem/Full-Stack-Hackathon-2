@@ -88,7 +88,6 @@ function App() {
                   Volunteer
                 </button>
 
-                {/* ADMIN BUTTON - SIRF TAB DIKHEGA JAB isAdmin TRUE HOGA */}
                 {isAdmin && (
                   <button 
                     onClick={() => setActiveTab('admin')}
@@ -112,7 +111,6 @@ function App() {
             {activeTab === 'lostfound' && <LostFound />}
             {activeTab === 'complaints' && <Complaints />}
             {activeTab === 'volunteer' && <Volunteer />}
-            {/* Sirf tab render hoga jab admin tab active ho aur user waqai admin ho */}
             {activeTab === 'admin' && isAdmin && <Admin />} 
           </div>
         </div>
