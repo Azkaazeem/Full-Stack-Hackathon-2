@@ -1,109 +1,137 @@
 import React, { useState } from 'react';
+import { supabase } from '../supabaseClient'; // Path apne hisaab se adjust kar lena
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  
+  // Form states
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      if (isLogin) {
+        // --- LOGIN LOGIC ---
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        alert('Login Successful! Dashboard par redirect karein.');
+        
+      } else {
+        // --- SIGNUP LOGIC ---
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            }
+          }
+        });
+        if (error) throw error;
+        alert('Account created! Email check karein ya direct login karein.');
+      }
+    } catch (error) {
+      setErrorMsg(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      {/* Hackathon Speed: Custom animations injected directly */}
-      <style>
-        {`
-          @keyframes blob {
-            0% { transform: translate(0px, 0px) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(0px, 0px) scale(1); }
-          }
-          .animate-blob {
-            animation: blob 7s infinite;
-          }
-          .animation-delay-2000 {
-            animation-delay: 2s;
-          }
-          .animation-delay-4000 {
-            animation-delay: 4s;
-          }
-        `}
-      </style>
-
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-950 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
+      <div className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
         
-        {/* Animated Background Blobs */}
-        <div className="absolute top-[10%] left-[20%] w-72 h-72 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
-        <div className="absolute top-[20%] right-[20%] w-72 h-72 bg-pink-600 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[10%] left-[40%] w-72 h-72 bg-indigo-600 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
-
-        {/* Glassmorphism Card */}
-        <div className="relative z-10 w-full max-w-md p-8 sm:p-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl transition-all duration-500">
-          
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-extrabold text-white tracking-tight drop-shadow-md">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
-            </h2>
-            <p className="text-gray-300 mt-2 text-sm">
-              {isLogin ? 'Enter your details to access your account' : 'Join us and start your journey'}
-            </p>
-          </div>
-
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-            
-            {/* Name Input (Only for Signup) */}
-            <div className={`transition-all duration-500 overflow-hidden ${isLogin ? 'max-h-0 opacity-0' : 'max-h-24 opacity-100'}`}>
-              <div className="relative group">
-                <input
-                  type="text"
-                  required={!isLogin}
-                  className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-400/30 transition-all shadow-inner"
-                  placeholder="Full Name"
-                />
-              </div>
-            </div>
-
-            {/* Email Input */}
-            <div className="relative group">
-              <input
-                type="email"
-                required
-                className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-400/30 transition-all shadow-inner"
-                placeholder="Email Address"
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="relative group">
-              <input
-                type="password"
-                required
-                className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-400/30 transition-all shadow-inner"
-                placeholder="Password"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full py-3.5 mt-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.5)] hover:shadow-[0_0_25px_rgba(236,72,153,0.7)] transform transition-all active:scale-95"
-            >
-              {isLogin ? 'Log In' : 'Sign Up'}
-            </button>
-          </form>
-
-          {/* Toggle Button */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-300 text-sm">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="ml-2 text-pink-400 font-bold hover:text-pink-300 hover:underline transition-all"
-              >
-                {isLogin ? 'Sign Up' : 'Log In'}
-              </button>
-            </p>
-          </div>
-          
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-[#0057a8] mb-2 tracking-tight">Saylani Mass IT Hub</h1>
+          <h2 className="text-lg text-gray-600">
+            {isLogin ? 'Login to your account' : 'Register a new account'}
+          </h2>
         </div>
+
+        {/* Error Message Display */}
+        {errorMsg && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
+            {errorMsg}
+          </div>
+        )}
+
+        <form className="space-y-5" onSubmit={handleAuth}>
+          
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b032] focus:border-transparent transition-all"
+                placeholder="Enter your full name"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b032] focus:border-transparent transition-all"
+              placeholder="name@example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b032] focus:border-transparent transition-all"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 mt-4 bg-[#66b032] hover:bg-[#559429] text-white font-bold rounded-lg shadow-sm transform transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center pt-4 border-t border-gray-100">
+          <p className="text-sm text-gray-600">
+            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            <button
+              type="button"
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setErrorMsg(''); // Clear errors when switching
+              }}
+              className="ml-1 text-[#0057a8] font-semibold hover:underline transition-all"
+            >
+              {isLogin ? 'Sign Up' : 'Login'}
+            </button>
+          </p>
+        </div>
+        
       </div>
-    </>
+    </div>
   );
 };
 
