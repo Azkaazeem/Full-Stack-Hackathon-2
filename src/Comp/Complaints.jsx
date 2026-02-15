@@ -41,12 +41,29 @@ const Complaints = () => {
     setLoading(false);
   };
 
+  // --- LOGOUT FUNCTION ---
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) alert('Error logging out: ' + error.message);
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto font-sans animate-fade-in">
       
-      <div className="mb-8 border-b-2 border-[#0057a8] pb-4">
-        <h2 className="text-3xl font-bold text-[#0057a8]">Complaints</h2>
-        <p className="text-gray-600 mt-1">Submit campus-related issues (Internet, Water, Maintenance, etc.)</p>
+      {/* Header with Logout Button */}
+      <div className="mb-8 border-b-2 border-[#0057a8] pb-4 flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-bold text-[#0057a8]">Complaints</h2>
+          <p className="text-gray-600 mt-1">Submit campus-related issues (Internet, Water, Maintenance, etc.)</p>
+        </div>
+        
+        {/* LOGOUT BUTTON */}
+        <button 
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 font-semibold rounded-lg border border-red-200 transition-colors"
+        >
+          Logout
+        </button>
       </div>
 
       {/* Complaint Form */}
@@ -93,7 +110,6 @@ const Complaints = () => {
             <div key={comp.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
               <div className="px-4 py-2 bg-gray-800 text-white font-bold text-sm flex justify-between items-center">
                 <span>{comp.category}</span>
-                {/* Status Badge */}
                 <span className={`px-2 py-0.5 rounded text-xs ${
                   comp.status === 'Resolved' ? 'bg-[#66b032]' : 'bg-yellow-500 text-black'
                 }`}>
