@@ -103,7 +103,7 @@ const Volunteer = () => {
         </form>
       </div>
 
-      <h3 className="text-xl font-bold text-gray-800 mb-4">Registered Volunteers (Admin View)</h3>
+      <h3 className="text-xl font-bold text-gray-800 mb-4">Registered Volunteers</h3>
       
       {volunteers.length === 0 ? (
         <p className="text-gray-500 italic">No volunteers registered yet.</p>
