@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { supabase } from '../supabaseClient'; // Path apne hisaab se adjust kar lena
+import { supabase } from '../supabaseClient';
+import Swal from 'sweetalert2';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   
   // Form states
   const [fullName, setFullName] = useState('');
@@ -14,7 +14,6 @@ const Auth = () => {
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMsg('');
 
     try {
       if (isLogin) {
@@ -24,7 +23,16 @@ const Auth = () => {
           password,
         });
         if (error) throw error;
-        alert('Login Successful! Dashboard par redirect karein.');
+        
+        // Success SweetAlert for Login
+        Swal.fire({
+          title: 'Success!',
+          text: 'Login Successful! Welcome to the portal.',
+          icon: 'success',
+          confirmButtonColor: '#66b032', // Saylani Green
+          timer: 1500,
+          showConfirmButton: false
+        });
         
       } else {
         // --- SIGNUP LOGIC ---
@@ -38,10 +46,23 @@ const Auth = () => {
           }
         });
         if (error) throw error;
-        alert('Account created! Email check karein ya direct login karein.');
+        
+        // Success SweetAlert for Signup
+        Swal.fire({
+          title: 'Account Created!',
+          text: 'Your account has been registered successfully.',
+          icon: 'success',
+          confirmButtonColor: '#66b032' // Saylani Green
+        });
       }
     } catch (error) {
-      setErrorMsg(error.message);
+      // Error SweetAlert
+      Swal.fire({
+        title: 'Error!',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#0057a8' // Saylani Blue
+      });
     } finally {
       setLoading(false);
     }
@@ -49,8 +70,9 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
-      <div className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
+      <div className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm animate-fade-in">
         
+        {/* Header - Saylani Portal */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#0057a8] mb-2 tracking-tight">Saylani Mass IT Hub</h1>
           <h2 className="text-lg text-gray-600">
@@ -58,15 +80,9 @@ const Auth = () => {
           </h2>
         </div>
 
-        {/* Error Message Display */}
-        {errorMsg && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
-            {errorMsg}
-          </div>
-        )}
-
         <form className="space-y-5" onSubmit={handleAuth}>
           
+          {/* Name Input (Only for Signup) */}
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -81,6 +97,7 @@ const Auth = () => {
             </div>
           )}
 
+          {/* Email Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
             <input
@@ -93,6 +110,7 @@ const Auth = () => {
             />
           </div>
 
+          {/* Password Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
@@ -105,6 +123,7 @@ const Auth = () => {
             />
           </div>
 
+          {/* Submit Button (Saylani Green) */}
           <button
             type="submit"
             disabled={loading}
@@ -114,15 +133,13 @@ const Auth = () => {
           </button>
         </form>
 
+        {/* Toggle Section */}
         <div className="mt-6 text-center pt-4 border-t border-gray-100">
           <p className="text-sm text-gray-600">
             {isLogin ? "Don't have an account?" : "Already have an account?"}
             <button
               type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setErrorMsg(''); // Clear errors when switching
-              }}
+              onClick={() => setIsLogin(!isLogin)}
               className="ml-1 text-[#0057a8] font-semibold hover:underline transition-all"
             >
               {isLogin ? 'Sign Up' : 'Login'}

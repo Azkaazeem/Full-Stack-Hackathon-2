@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import Swal from 'sweetalert2';
 
 const Volunteer = () => {
   const [volunteers, setVolunteers] = useState([]);
@@ -33,9 +34,20 @@ const Volunteer = () => {
       .insert([{ full_name: fullName, event_name: eventName, availability }]);
 
     if (error) {
-      alert('Error registering: ' + error.message);
+      Swal.fire({
+        title: 'Error!',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#0057a8'
+      });
     } else {
-      alert('Volunteer registration successful!');
+      Swal.fire({
+        title: 'Registered!',
+        text: 'You have successfully signed up as a volunteer.',
+        icon: 'success',
+        confirmButtonColor: '#66b032',
+        timer: 2000
+      });
       setFullName('');
       setEventName('');
       fetchVolunteers();
@@ -45,13 +57,11 @@ const Volunteer = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto font-sans animate-fade-in">
-      
       <div className="mb-8 border-b-2 border-[#0057a8] pb-4">
         <h2 className="text-3xl font-bold text-[#0057a8]">Volunteer Registry</h2>
         <p className="text-gray-600 mt-1">Sign up to help at campus events.</p>
       </div>
 
-      {/* Registration Form */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-10">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -93,7 +103,6 @@ const Volunteer = () => {
         </form>
       </div>
 
-      {/* Admin View: Volunteer List */}
       <h3 className="text-xl font-bold text-gray-800 mb-4">Registered Volunteers (Admin View)</h3>
       
       {volunteers.length === 0 ? (

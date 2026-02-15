@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import Swal from 'sweetalert2';
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -11,16 +12,15 @@ const Complaints = () => {
   useEffect(() => {
     fetchComplaints();
   }, []);
-const fetchComplaints = async () => {
-    // 1. Pehle current logged-in user maloom karein
+
+  const fetchComplaints = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
-      // 2. Sirf us user ki complaints database se mangwayen (.eq ka matlab 'equal')
       const { data, error } = await supabase
         .from('complaints')
         .select('*')
-        .eq('user_email', user.email) // Yeh line magic karegi!
+        .eq('user_email', user.email)
         .order('created_at', { ascending: false });
         
       if (!error && data) {
@@ -33,55 +33,45 @@ const fetchComplaints = async () => {
     e.preventDefault();
     setLoading(true);
 
-    // Current user maloom karein
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Data mein user ka email bhi sath bhej dein
     const { error } = await supabase
       .from('complaints')
       .insert([{ 
         category, 
         description, 
         status: 'Submitted',
-        user_email: user.email // Yahan user ka email save ho jayega
+        user_email: user.email
       }]);
 
     if (error) {
-      alert('Error submitting complaint: ' + error.message);
+      Swal.fire({
+        title: 'Error!',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#0057a8'
+      });
     } else {
-      alert('Complaint registered successfully!');
+      Swal.fire({
+        title: 'Submitted!',
+        text: 'Your complaint has been registered successfully.',
+        icon: 'success',
+        confirmButtonColor: '#66b032',
+        timer: 2000
+      });
       setDescription('');
       fetchComplaints();
     }
     setLoading(false);
   };
 
-  // --- LOGOUT FUNCTION ---
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) alert('Error logging out: ' + error.message);
-  };
-
   return (
     <div className="p-6 max-w-6xl mx-auto font-sans animate-fade-in">
-      
-      {/* Header with Logout Button */}
-      <div className="mb-8 border-b-2 border-[#0057a8] pb-4 flex justify-between items-end">
-        <div>
-          <h2 className="text-3xl font-bold text-[#0057a8]">Complaints</h2>
-          <p className="text-gray-600 mt-1">Submit campus-related issues (Internet, Water, Maintenance, etc.)</p>
-        </div>
-        
-        {/* LOGOUT BUTTON */}
-        <button 
-          onClick={handleLogout}
-          className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 font-semibold rounded-lg border border-red-200 transition-colors"
-        >
-          Logout
-        </button>
+      <div className="mb-8 border-b-2 border-[#0057a8] pb-4">
+        <h2 className="text-3xl font-bold text-[#0057a8]">Complaints</h2>
+        <p className="text-gray-600 mt-1">Submit campus-related issues (Internet, Water, Maintenance, etc.)</p>
       </div>
 
-      {/* Complaint Form */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-10">
         <form onSubmit={handleSubmit} className="space-y-4">
           <select 
@@ -114,7 +104,6 @@ const fetchComplaints = async () => {
         </form>
       </div>
 
-      {/* Complaints List Cards */}
       <h3 className="text-xl font-bold text-gray-800 mb-4">Your Recent Complaints</h3>
       
       {complaints.length === 0 ? (
@@ -125,9 +114,7 @@ const fetchComplaints = async () => {
             <div key={comp.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
               <div className="px-4 py-2 bg-gray-800 text-white font-bold text-sm flex justify-between items-center">
                 <span>{comp.category}</span>
-                <span className={`px-2 py-0.5 rounded text-xs ${
-                  comp.status === 'Resolved' ? 'bg-[#66b032]' : 'bg-yellow-500 text-black'
-                }`}>
+                <span className={`px-2 py-0.5 rounded text-xs ${comp.status === 'Resolved' ? 'bg-[#66b032]' : 'bg-yellow-500 text-black'}`}>
                   {comp.status}
                 </span>
               </div>
